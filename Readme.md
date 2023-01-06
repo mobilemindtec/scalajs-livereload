@@ -1,6 +1,4 @@
-# scalajs-livereload
-ScalsJS Live Reload Plugin
-
+# ScalsJS Live Reload Plugin
 
 ## Usage
 
@@ -22,3 +20,19 @@ sbt:appjs> ~fastLinkJS
 ```
 
 - Done, the HTML page will be reloaded.
+
+### Test project
+
+- On appjs folder, run sbt
+
+```
+sbt:appjs> livereload
+```
+
+- Open test html on http://localhost:10101/sample/index.html.
+
+```
+sbt:appjs> ~fastLinkJS
+```
+
+- Change `Main.scala` and save to HTML reload.
