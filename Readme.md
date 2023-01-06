@@ -1,24 +1,24 @@
+# scalajs-livereload
+ScalsJS Live Reload Plugin
 
-## references
 
-Web frameworks
-https://github.com/hexagonkt/tfb/tree/main/frameworks
+## Usage
 
-## libs
+- Add on HTML page
+```
+<script type="text/javascript" src="/js/livereload.js"></script>
+```
+- Add plugin
+- In sbt console execute
 
-web http server
+```
+sbt:appjs> livereload
+```
 
-https://github.com/undertow-io/undertow
+- Run ~fastLinkJS to compile scalajs files.
 
-hotdeploy
+```
+sbt:appjs> ~fastLinkJS
+```
 
-https://github.com/spray/sbt-revolver
-
-## java 
-
-$ env shell graalvm64-17.0.2
-
-## run watch mode
-
-$ sbt
-$ ~reStart
+- Done, the HTML page will be reloaded.
