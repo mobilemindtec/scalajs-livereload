@@ -8,9 +8,19 @@ This plugin does two things:
 
 ## Usage
 
+- Install local dependency. Clone this project and execute:
+       
+       $ sbt publishLocal
+       
 - Add plugin
 
-      .enablePlugins(LiveReloadJSPlugin)
+  * project/plugins.sbt
+  
+        addSbtPlugin("br.com.mobilemind" % "livereload" % "0.1.0")
+  
+  * build.sbt
+
+        .enablePlugins(LiveReloadJSPlugin)
 
 
 ## Live reload usage 
