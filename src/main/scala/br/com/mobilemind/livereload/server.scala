@@ -4,8 +4,9 @@ import cask.Ws
 import cask.endpoints.WsChannelActor
 import io.undertow.{Undertow, UndertowOptions}
 import sbt.Logger
+
 import scala.collection.mutable.ListBuffer
-import play.api.libs.json.{ Json }
+import play.api.libs.json.Json
 
 class myStaticResources(path: String, headers: Seq[(String, String)]) extends
 	cask.staticResources(path, classOf[cask.staticResources].getClassLoader, headers)
@@ -15,6 +16,7 @@ class PluginLogger(logger: Logger) {
 		logger.info(s)
 	}
 }
+
 object WsSession {
 
 	private var sessions = ListBuffer[WsChannelActor]()
@@ -34,7 +36,8 @@ object WsSession {
 				case cask.Ws.Text(data) =>
 					channel.send(cask.Ws.Text(id + " " + data))
 				case cask.Ws.ChannelClosed() =>
-					sessions.remove(sessions.indexOf(channel))
+					sessions.clear()
+					//if (idx > -1) sessions.remove(idx)
 			}
 
 
@@ -72,6 +75,7 @@ case class AppController()(implicit ctx: castor.Context,
 object Server extends cask.Main {
 
 	private var logger: PluginLogger = null
+	private var server : Option[Undertow] = None
 
 	val allRoutes = Seq(
 		AppController()
@@ -82,8 +86,10 @@ object Server extends cask.Main {
 		main(Array())
 	}
 
+	def stop() = server.map(_.stop())
+
 	override def main(args: Array[String]): Unit = {
-		val server = Undertow.builder
+		val srv = Undertow.builder
 			.addHttpListener(10101, "0.0.0.0")
 			// increase io thread count as per https://github.com/TechEmpower/FrameworkBenchmarks/pull/4008
 			.setIoThreads(Runtime.getRuntime().availableProcessors() * 2)
@@ -93,8 +99,9 @@ object Server extends cask.Main {
 			.setServerOption[java.lang.Boolean](UndertowOptions.ALWAYS_SET_KEEP_ALIVE, false)
 			.setHandler(defaultHandler)
 			.build
-		server.start()
-		logger.info("LiveReloadPlugin: start ws watcher...")
+		srv.start()
+		server = Some(srv)
+		logger.info("LiveReloadPlugin: Start ws watcher...")
 	}
 
 	def notify(l: PluginLogger) = WsSession.notify(l)
