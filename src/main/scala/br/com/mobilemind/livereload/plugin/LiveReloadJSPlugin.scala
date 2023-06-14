@@ -37,14 +37,14 @@ object LiveReloadJSPlugin extends AutoPlugin {
   override def trigger = allRequirements
 
   object autoImport {
-    var watchTarget = SettingKey[Option[File]]("watchTarget", "scala.js linker artifact copy target directory")
-    val copyTo = SettingKey[Option[File]]("copyTo", "scala.js linker artifact copy target directory")
+    var watchTarget = SettingKey[Option[File]]("watchTarget", "js target to watch")
+    val copyTo = SettingKey[Option[File]]("copyTo", "destination to copy change files")
     val dist = SettingKey[Option[File]]("dist", "static dir to serve")
-    val distJsFolder = SettingKey[Option[String]]("distJsFolder", "static dir to serve")
-    val watchDist = SettingKey[Option[Boolean]]("watchDist", "static dir to serve")
-    val debug = SettingKey[Option[Boolean]]("debug", "static dir to serve")
+    val distJsFolder = SettingKey[Option[String]]("distJsFolder", "dist js folder, default assets/js")
+    val watchDist = SettingKey[Option[Boolean]]("watchDist", "should watch dist folder, default is trus")
+    val debug = SettingKey[Option[Boolean]]("debug", "debug mode")
     val port = SettingKey[Option[Int]]("port", "http server port")
-    val extensions = SettingKey[Option[List[String]]]("extensions", "http server port")
+    val extensions = SettingKey[Option[List[String]]]("extensions", "watch extensions")
     val runserve = taskKey[Unit]("starts http server")
     val runwatch = taskKey[Unit]("watch dist and watchTarget")
     val livereload = taskKey[Unit]("starts live reload")
