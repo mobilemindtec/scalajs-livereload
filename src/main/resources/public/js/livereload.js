@@ -1,20 +1,14 @@
 
-
-
 class LiveReload{
-
-    
-
     static start(args) {
-
         var args  = {
         	port:  10101,
-					debug: false,
-					tryLimit: 20,
-					startTimeout: 1000,
-					retryTimeout: 300,
-					testUrl: document.href
-				}
+            debug: false,
+            tryLimit: 20,
+            startTimeout: 1000,
+            retryTimeout: 300,
+            testUrl: document.href
+        }
 
         if(args.debug)
             console.log("Live Reload:", JSON.stringify(args))

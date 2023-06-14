@@ -4,4 +4,4 @@ package br.com.mobilemind
 
 
 @main def main(args: String*) =
-	println("scalajs rocks!!")
+	println("scalajs rocks =) ")
