@@ -6,7 +6,7 @@ lazy val scalaVersions = List(scala212, scala213, scala3)
 
 ThisBuild / crossScalaVersions := scalaVersions
 ThisBuild / scalaVersion     := scala212
-ThisBuild / version          := "0.2.0"
+ThisBuild / version          := "0.2.2"
 ThisBuild / organization     := "br.com.mobilemind"
 ThisBuild / organizationName := "livereload"
 

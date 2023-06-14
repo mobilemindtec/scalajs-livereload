@@ -68,18 +68,7 @@ class AppController(dist: => Option[File])(implicit ctx: castor.Context,
 			val reader = new BufferedReader(new FileReader(indexFile))
 			try{
 				val lines = reader.lines().toList.asScala
-				var builder = new StringBuilder
-				for (s <- lines) {
-					if (s == "</body>") {
-						builder
-							.append("<script type='text/javascript' src='/js/livereload.js'></script>")
-							.append("\n")
-					}
-					builder
-						.append(s)
-						.append("\n")
-				}
-				Some(builder.toString())
+				Some(lines.mkString("\n"))
 			}finally {
 				reader.close()
 			}

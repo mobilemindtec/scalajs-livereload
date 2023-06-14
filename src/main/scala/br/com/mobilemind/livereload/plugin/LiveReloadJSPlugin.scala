@@ -91,14 +91,12 @@ object LiveReloadJSPlugin extends AutoPlugin {
         }
       }
 
-
-
       // watch dist path to notify on changes
       watchDist.value.orElse(Some(dist.value.nonEmpty)).filter(x => x).flatMap(_ => dist.value).foreach {
         distTarget => {
           val dirs = distTarget :: WatcherUtil.getAllDirs(distTarget)
           dirs.foreach {
-            f => WatcherUtil.watch(extensions_, debug_, logger, f, None, notify = false)
+            f => WatcherUtil.watch(extensions_, debug_, logger, f, None, notify = true)
           }
         }
       }
@@ -109,8 +107,8 @@ object LiveReloadJSPlugin extends AutoPlugin {
       val logger = CustomLogger(s.log)
       FileWatcher.setLogger(logger)
       Server.setLogger(logger)
-      println(s"sessions to notify ${WsSession.count}")
-      Server.notify(logger)
+      val watchingDist = dist.value.isDefined && watchDist.value.getOrElse(true)
+      if(!watchingDist) Server.notify(logger)
       c
     },
     (Global / onUnload) := {
