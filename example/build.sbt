@@ -8,8 +8,7 @@ lazy val app = (project in file("."))
 	.settings(
 		name := "example",
 		scalaJSUseMainModuleInitializer := true,
-		//copyTo := Some(baseDirectory.value / "public" / "assets" / "js"),
-		dist := Some(baseDirectory.value / "public")
+		livereloadPublic := Some(baseDirectory.value / "public")
 	)
 
 

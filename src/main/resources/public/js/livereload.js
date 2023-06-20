@@ -2,7 +2,7 @@
 class LiveReload{
     static start(args) {
         var args  = {
-        	port:  10101,
+        	port:  __PORT__,
             debug: false,
             tryLimit: 20,
             startTimeout: 1000,

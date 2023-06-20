@@ -6,15 +6,13 @@ lazy val scalaVersions = List(scala212, scala213, scala3)
 
 ThisBuild / crossScalaVersions := scalaVersions
 ThisBuild / scalaVersion     := scala212
-ThisBuild / version          := "0.2.2"
+ThisBuild / version          := "0.2.3"
 ThisBuild / organization     := "br.com.mobilemind"
 ThisBuild / organizationName := "livereload"
-
 
 githubOwner := "mobilemindtec"
 githubRepository := "m2"
 githubTokenSource := TokenSource.Environment("GITHUB_TOKEN")
-
 
 lazy val root = (project in file("."))
   //.enablePlugins(SbtPlugin)
@@ -26,5 +24,5 @@ lazy val root = (project in file("."))
       "com.lihaoyi" %% "cask" % "0.9.1",
       "com.lihaoyi" %% "upickle" % "3.1.0",
       //"com.typesafe.play" %% "play-json" % "2.9.3"
-    )
+    ),
   )

@@ -7,9 +7,11 @@ import cask.model.Response
 import io.undertow.{Undertow, UndertowOptions}
 import upickle.default.*
 
-import java.io.{BufferedReader, File, FileReader}
+import java.io
+import java.io.{BufferedReader, File, FileReader, InputStreamReader}
 import scala.collection.JavaConverters.*
 import scala.collection.mutable.ListBuffer
+import scala.util.parsing.input.StreamReader
 
 
 case class ServerConfigs(port: Option[Int]  = None, www: Option[File] = None)
@@ -19,17 +21,18 @@ class myStaticResources(path: String, headers: Seq[(String, String)]) extends
 
 case class Asset(data: String, contentType: String, status: Int = 200)
 
+case class ClientWsSession(channel: WsChannelActor, actor: cask.WsActor)
 object WsSession {
 
-	private var sessions = ListBuffer[WsChannelActor]()
+	private var sessions = ListBuffer[ClientWsSession]()
 
 	def count = sessions.length
 
 	def newSession(id: String)(implicit ctx: castor.Context, log: cask.Logger): cask.WsHandler = {
 		cask.WsHandler { channel =>
-			sessions.append(channel)
 			val actor = newSession(id, channel)
 			channel.send(createEvent("alive"))
+			sessions.append(ClientWsSession(channel, actor))
 			actor
 		}
 	}
@@ -40,7 +43,8 @@ object WsSession {
 				case cask.Ws.Text(data) =>
 					channel.send(cask.Ws.Text(id + " " + data))
 				case cask.Ws.ChannelClosed() =>
-					sessions -= channel
+					if(sessions.exists { _.channel == channel })
+						sessions -= sessions.find { _.channel == channel }.get
 					//if (idx > -1) sessions.remove(idx)
 			}
 	}
@@ -48,7 +52,12 @@ object WsSession {
 
 	def notify(logger: CustomLogger): Unit = {
 		logger.info(s"[info] LiveReload: ${sessions.size} active sessions")
-		sessions.foreach(c => c.send(createEvent("reload")))
+		sessions.foreach {
+			client => {
+				client.channel.send(createEvent("reload"))
+				client.channel.send(Ws.Close())
+			}
+		}
 	}
 
 	private def createEvent(s: String) =
@@ -122,8 +131,20 @@ class AppController(dist: => Option[File])(implicit ctx: castor.Context,
 	@myStaticResources("/demo", headers = Seq("Content-Type" -> "text/html"))
 	def demo() = "public/html/index.html"
 
-	@myStaticResources("/js", headers = Seq("Content-Type" -> "text/javascript"))
-	def staticJs() = "public/js"
+	@cask.get("/js/livereload.js", subpath = true)
+	def staticJs(req: cask.Request) = {
+		val res = classOf[cask.staticResources].getClassLoader.getResourceAsStream("public/js/livereload.js")
+		val buffer = new BufferedReader(new InputStreamReader(res))
+		try{
+
+			val port = req.exchange.getHostPort
+			val content = buffer
+				.lines()
+				.map(l => l.replace("__PORT__", port.toString))
+				.toList.asScala.mkString("\n")
+			cask.Response(content, 200, Seq("Content-Type" -> "text/javascript"))
+		}finally buffer.close()
+	}
 
 	@cask.websocket("/ws")
 	def ws(): cask.WebsocketResult = WsSession.newSession("userName")

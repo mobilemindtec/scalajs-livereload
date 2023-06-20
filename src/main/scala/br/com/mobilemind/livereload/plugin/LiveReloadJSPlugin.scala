@@ -37,62 +37,62 @@ object LiveReloadJSPlugin extends AutoPlugin {
   override def trigger = allRequirements
 
   object autoImport {
-    var watchTarget = SettingKey[Option[File]]("watchTarget", "js target to watch")
-    val copyTo = SettingKey[Option[File]]("copyTo", "destination to copy change files")
-    val dist = SettingKey[Option[File]]("dist", "static dir to serve")
-    val distJsFolder = SettingKey[Option[String]]("distJsFolder", "dist js folder, default assets/js")
-    val watchDist = SettingKey[Option[Boolean]]("watchDist", "should watch dist folder, default is trus")
-    val debug = SettingKey[Option[Boolean]]("debug", "debug mode")
-    val port = SettingKey[Option[Int]]("port", "http server port")
-    val extensions = SettingKey[Option[List[String]]]("extensions", "watch extensions")
-    val runserve = taskKey[Unit]("starts http server")
-    val runwatch = taskKey[Unit]("watch dist and watchTarget")
-    val livereload = taskKey[Unit]("starts live reload")
+    var livereloadWatchTarget = SettingKey[Option[File]]("livereloadWatchTarget", "js target to watch")
+    val livereloadCopyJSTo = SettingKey[Option[File]]("livereloadCopyJSTo", "destination to copy change files")
+    val livereloadPublic = SettingKey[Option[File]]("livereloadPublic", "static dir to serve")
+    val livereloadPublicJS = SettingKey[Option[String]]("livereloadPublicJS", "dist js folder, default assets/js")
+    val livereloadWatchPublic = SettingKey[Option[Boolean]]("livereloadWatchPublic", "should watch dist folder, default is trus")
+    val livereloadDebug = SettingKey[Option[Boolean]]("livereloadDebug", "debug mode")
+    val livereloadServerPort = SettingKey[Option[Int]]("livereloadServerPort", "http server port")
+    val livereloadExtensions = SettingKey[Option[List[String]]]("livereloadExtensions", "watch extensions")
+    val livereloadServe = taskKey[Unit]("start http server")
+    val livereloadWatch = taskKey[Unit]("start watcher")
+    val livereload = taskKey[Unit]("start live reload")
     val defaultExtensions = List("js", "map", "css", "jpg", "jpeg", "png", "ico", "html")
   }
 
   import autoImport.*
 
   override lazy val projectSettings: Seq[Setting[_]] = Seq(
-    watchTarget := None,
-    copyTo := None,
-    dist := None,
-    distJsFolder := None,
-    port := None,
-    debug := None,
-    extensions := None,
-    watchDist := None,
-    runserve := {
+    livereloadWatchTarget := None,
+    livereloadCopyJSTo := None,
+    livereloadPublic := None,
+    livereloadPublicJS := None,
+    livereloadServerPort := None,
+    livereloadDebug := None,
+    livereloadExtensions := None,
+    livereloadWatchPublic := None,
+    livereloadServe := {
       val s = streams.value
-      Server.start(CustomLogger(s.log), ServerConfigs(port.value, dist.value))
+      Server.start(CustomLogger(s.log), ServerConfigs(livereloadServerPort.value, livereloadPublic.value))
     },
-    runwatch := {
+    livereloadWatch := {
       val targetName = s"${name.value}-fastopt"
       val target = new File((Compile / crossTarget).value, targetName)
-      val targetPath = watchTarget.value.getOrElse(target)
-      val extensions_ = extensions.value.getOrElse(defaultExtensions)
-      val debug_ = debug.value.getOrElse(false)
+      val targetPath = livereloadWatchTarget.value.getOrElse(target)
+      val extensions_ = livereloadExtensions.value.getOrElse(defaultExtensions)
+      val debug_ = livereloadDebug.value.getOrElse(false)
       val logger = CustomLogger(streams.value.log)
 
       FileWatcher.setLogger(logger)
 
       // set copyTo to copy destination on change target files
-      copyTo.value.foreach {
+      livereloadCopyJSTo.value.foreach {
         f => {
           WatcherUtil.watch(extensions_, debug_, logger, targetPath, Some(f), notify = false) // dist.value.isEmpty
         }
       }
 
       // set dist to copy destination on change target files
-      dist.value.foreach {
+      livereloadPublic.value.foreach {
         f => {
-          val destination = new File(f, distJsFolder.value.getOrElse("assets/js"))
+          val destination = new File(f, livereloadPublicJS.value.getOrElse("assets/js"))
           WatcherUtil.watch(extensions_, debug_, logger, targetPath, Some(destination), notify = false)
         }
       }
 
       // watch dist path to notify on changes
-      watchDist.value.orElse(Some(dist.value.nonEmpty)).filter(x => x).flatMap(_ => dist.value).foreach {
+      livereloadWatchPublic.value.orElse(Some(livereloadPublic.value.nonEmpty)).filter(x => x).flatMap(_ => livereloadPublic.value).foreach {
         distTarget => {
           val dirs = distTarget :: WatcherUtil.getAllDirs(distTarget)
           dirs.foreach {
@@ -107,7 +107,7 @@ object LiveReloadJSPlugin extends AutoPlugin {
       val logger = CustomLogger(s.log)
       FileWatcher.setLogger(logger)
       Server.setLogger(logger)
-      val watchingDist = dist.value.isDefined && watchDist.value.getOrElse(true)
+      val watchingDist = livereloadPublic.value.isDefined && livereloadWatchPublic.value.getOrElse(true)
       if(!watchingDist) Server.notify(logger)
       c
     },
@@ -123,6 +123,6 @@ object LiveReloadJSPlugin extends AutoPlugin {
         state
       }
     },
-    livereload := runserve.dependsOn(Def.task(runwatch.value)).value
+    livereload := livereloadServe.dependsOn(Def.task(livereloadWatch.value)).value
   )
 }

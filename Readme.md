@@ -5,23 +5,22 @@
 ### Tasks
 
 ```scala
-    val runserve = taskKey[Unit]("starts http server")
-    val runwatch = taskKey[Unit]("watch dist and watchTarget")
-    val livereload = taskKey[Unit]("starts live reload")
-
+    val livereloadServe = taskKey[Unit]("start http server")
+    val livereloadWatch = taskKey[Unit]("start watcher")
+    val livereload = taskKey[Unit]("start live reload")
 ```
 
 ### Configs
 
 ```scala
-    var watchTarget = SettingKey[Option[File]]("watchTarget", "js target to watch")
-    val copyTo = SettingKey[Option[File]]("copyTo", "destination to copy change files, default is `dist/distJsFolder`")
-    val dist = SettingKey[Option[File]]("dist", "static dir to serve")
-    val distJsFolder = SettingKey[Option[String]]("distJsFolder", "dist js folder, default assets/js")
-    val watchDist = SettingKey[Option[Boolean]]("watchDist", "should watch dist folder, default is true")
-    val debug = SettingKey[Option[Boolean]]("debug", "debug mode")
-    val port = SettingKey[Option[Int]]("port", "http server port, default is 10101")
-    val extensions = SettingKey[Option[List[String]]]("extensions", "watch extensions, default is js,map,css,jpg,jpeg,png,ico,html")   
+    var livereloadWatchTarget = SettingKey[Option[File]]("livereloadWatchTarget", "js target to watch")
+    val livereloadCopyJSTo = SettingKey[Option[File]]("livereloadCopyJSTo", "destination to copy change files")
+    val livereloadPublic = SettingKey[Option[File]]("livereloadPublic", "static dir to serve")
+    val livereloadPublicJS = SettingKey[Option[String]]("livereloadPublicJS", "dist js folder, default assets/js")
+    val livereloadWatchPublic = SettingKey[Option[Boolean]]("livereloadWatchPublic", "should watch dist folder, default is trus")
+    val livereloadDebug = SettingKey[Option[Boolean]]("livereloadDebug", "debug mode")
+    val livereloadServerPort = SettingKey[Option[Int]]("livereloadServerPort", "http server port")
+    val livereloadExtensions = SettingKey[Option[List[String]]]("livereloadExtensions", "watch extensions")
 ```
 
 ## Example
@@ -44,8 +43,8 @@ lazy val app = (project in file("."))
 	.enablePlugins()
 	.settings(
 		name := "example",
-		scalaJSUseMainModuleInitializer := true,	
-		dist := Some(baseDirectory.value / "public")
+		scalaJSUseMainModuleInitializer := true,
+        livereloadPublic := Some(baseDirectory.value / "public")
 	)
 	
 ```
