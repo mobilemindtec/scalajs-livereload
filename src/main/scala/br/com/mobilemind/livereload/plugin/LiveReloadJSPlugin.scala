@@ -8,6 +8,7 @@ import scala.collection.JavaConverters.*
 import java.io.File
 import java.nio.file.{FileSystems, Files}
 import scala.util.{Failure, Success}
+import scala.sys.process._
 
 object WatcherUtil {
 
@@ -45,9 +46,11 @@ object LiveReloadJSPlugin extends AutoPlugin {
     val livereloadDebug = SettingKey[Option[Boolean]]("livereloadDebug", "debug mode")
     val livereloadServerPort = SettingKey[Option[Int]]("livereloadServerPort", "http server port")
     val livereloadExtensions = SettingKey[Option[List[String]]]("livereloadExtensions", "watch extensions")
+    val liveRealoadUseEsbuild = SettingKey[Option[Boolean]]("liveRealoadUseEsbuild", "debug mode")
     val livereloadServe = taskKey[Unit]("start http server")
     val livereloadWatch = taskKey[Unit]("start watcher")
     val livereload = taskKey[Unit]("start live reload")
+    val npmInstall = taskKey[Unit]("npm install")
     val defaultExtensions = List("js", "map", "css", "jpg", "jpeg", "png", "ico", "html")
   }
 
@@ -62,9 +65,22 @@ object LiveReloadJSPlugin extends AutoPlugin {
     livereloadDebug := None,
     livereloadExtensions := None,
     livereloadWatchPublic := None,
+    npmInstall := {
+      val s: TaskStreams = streams.value
+      val shell: Seq[String] = if (sys.props("os.name").contains("Windows")) Seq("cmd", "/c") else Seq("bash", "-c")
+      val install: Seq[String] = shell :+ "npm install"
+      val result = (install !)
+      if(result == 0){
+        s.log.success("frontend build successful!")
+      }else{
+        s.log.success("error run npm install")
+      }
+    },
     livereloadServe := {
       val s = streams.value
-      Server.start(CustomLogger(s.log), ServerConfigs(livereloadServerPort.value, livereloadPublic.value))
+      Server.start(
+        CustomLogger(s.log),
+        ServerConfigs(livereloadServerPort.value, livereloadPublic.value))
     },
     livereloadWatch := {
       val targetName = s"${name.value}-fastopt"

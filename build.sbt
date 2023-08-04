@@ -6,13 +6,14 @@ lazy val scalaVersions = List(scala212, scala213, scala3)
 
 ThisBuild / crossScalaVersions := scalaVersions
 ThisBuild / scalaVersion     := scala212
-ThisBuild / version          := "0.2.3"
+ThisBuild / version          := "0.2.4"
 ThisBuild / organization     := "br.com.mobilemind"
 ThisBuild / organizationName := "livereload"
 
 githubOwner := "mobilemindtec"
 githubRepository := "m2"
 githubTokenSource := TokenSource.Environment("GITHUB_TOKEN")
+
 
 lazy val root = (project in file("."))
   //.enablePlugins(SbtPlugin)
@@ -25,4 +26,7 @@ lazy val root = (project in file("."))
       "com.lihaoyi" %% "upickle" % "3.1.0",
       //"com.typesafe.play" %% "play-json" % "2.9.3"
     ),
-  )
+    publishConfiguration := publishConfiguration.value.withOverwrite(true) ,
+    publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(true)
+)
+  .settings(addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.13.2"))
