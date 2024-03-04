@@ -38,14 +38,14 @@ object LiveReloadJSPlugin extends AutoPlugin {
   override def trigger = allRequirements
 
   object autoImport {
-    var livereloadWatchTarget = SettingKey[Option[File]]("livereloadWatchTarget", "js target to watch")
-    val livereloadCopyJSTo = SettingKey[Option[File]]("livereloadCopyJSTo", "destination to copy change files")
+    var livereloadWatchTarget = SettingKey[Option[File]]("livereloadWatchTarget", "target path to watch changes")
+    val livereloadCopyJSTo = SettingKey[Option[File]]("livereloadCopyJSTo", "destination folder to copy compiled js")
     val livereloadPublic = SettingKey[Option[File]]("livereloadPublic", "static dir to serve")
-    val livereloadPublicJS = SettingKey[Option[String]]("livereloadPublicJS", "dist js folder, default assets/js")
-    val livereloadWatchPublic = SettingKey[Option[Boolean]]("livereloadWatchPublic", "should watch dist folder, default is trus")
+    val livereloadPublicJS = SettingKey[Option[String]]("livereloadPublicJS", "js folder to static serve. default assets/js")
+    val livereloadWatchPublic = SettingKey[Option[Boolean]]("livereloadWatchPublic", "if should watch public folder, default is true")
     val livereloadDebug = SettingKey[Option[Boolean]]("livereloadDebug", "debug mode")
     val livereloadServerPort = SettingKey[Option[Int]]("livereloadServerPort", "http server port")
-    val livereloadExtensions = SettingKey[Option[List[String]]]("livereloadExtensions", "watch extensions")
+    val livereloadExtensions = SettingKey[Option[List[String]]]("livereloadExtensions", "file extensions to watch")
     val liveRealoadUseEsbuild = SettingKey[Option[Boolean]]("liveRealoadUseEsbuild", "debug mode")
     val livereloadServe = taskKey[Unit]("start http server")
     val livereloadWatch = taskKey[Unit]("start watcher")

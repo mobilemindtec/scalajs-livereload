@@ -1,51 +1,104 @@
 # ScalsJS Live Reload Plugin
 
+## Use g8 template
+
+```shell
+sbt new mobilemindtec/scalajs-livereload.g8 
+```
+
 ## Options
 
 ### Tasks
 
-```scala
-    val livereloadServe = taskKey[Unit]("start http server")
-    val livereloadWatch = taskKey[Unit]("start watcher")
-    val livereload = taskKey[Unit]("start live reload")
-```
+* `livereload` use this task to start plugin
+
+* `livereloadServe` start only server
+
+* `livereloadWatch` start only watcher
+
 
 ### Configs
 
-```scala
-    var livereloadWatchTarget = SettingKey[Option[File]]("livereloadWatchTarget", "js target to watch")
-    val livereloadCopyJSTo = SettingKey[Option[File]]("livereloadCopyJSTo", "destination to copy change files")
-    val livereloadPublic = SettingKey[Option[File]]("livereloadPublic", "static dir to serve")
-    val livereloadPublicJS = SettingKey[Option[String]]("livereloadPublicJS", "dist js folder, default assets/js")
-    val livereloadWatchPublic = SettingKey[Option[Boolean]]("livereloadWatchPublic", "should watch dist folder, default is trus")
-    val livereloadDebug = SettingKey[Option[Boolean]]("livereloadDebug", "debug mode")
-    val livereloadServerPort = SettingKey[Option[Int]]("livereloadServerPort", "http server port")
-    val livereloadExtensions = SettingKey[Option[List[String]]]("livereloadExtensions", "watch extensions")
+##### Server configs
+
+```sbt 
+livereloadDebug := Some(true)
+livereloadServerPort := Some(10101)
+livereloadExtensions := Some(List("js", "map", "css", "jpg", "jpeg", "png", "ico", "html"))
+```
+
+#### Use plugin to copy files to external location.
+
+This plugin can be used to copy the generated JS to an external project. 
+For example a golang or node application. In this case we need to specify the location where the js will be copied and the folder we want to monitor changes for autoreload. 
+
+Config example:
+
+```shell
+my-go-app/
+  public/
+    js/
+my-scalajs-app/
+  src/
+```
+
+```sbt
+.settings(
+    livereloadWatchTarget := Some(baseDirectory.value / ".." / "my-go-app" / "public")
+    livereloadCopyJSTo := Some(baseDirectory.value / ".." / "my-go-app" / "public" / "js")
+    copyFullJS := livereloadCopyJSTo.value.get
+)
+.settings(
+  Seq(fullOptJS, fastOptJS)
+    .map(task => (Compile / crossTarget) := livereloadCopyJSTo.value.get)
+)
+```
+
+#### Use plugin to serve files
+
+We can use the plugin in a quick project, or single page application, where everything we need is inside the public folder.
+
+Config:
+```sbt 
+livereloadPublic := Some(baseDirectory.value / "public")
+copyFullTarget := baseDirectory.value / "public" / "assets" / "js" / "main.js"
+livereloadPublicJS := Some(baseDirectory.value / "public" / "assets" / "js")
+livereloadWatchPublic := Some(true)
 ```
 
 ## Example
 
 ### plugins.sbt
-``` scala
-addSbtPlugin("br.com.mobilemind" % "livereload" % "0.2.0")
+
+```sbt
+addSbtPlugin("br.com.mobilemind" % "livereload" % "0.2.5")
+```
+
+### Public folder
+
+```shell
+app/
+    src/
+    public/
+      index.html
+      assets/
+        js/
 ```
 
 ### build.sbt
-```scala
+```sbt
 
 ThisBuild / name := "example"
-ThisBuild / scalaVersion := "3.3.0"
-
-resolvers += "mobilemind" at "https://maven.pkg.github.com/mobilemindtec/m2/"
+ThisBuild / scalaVersion := "3.4.0"
 
 lazy val app = (project in file("."))
-	.enablePlugins(ScalaJSPlugin, LiveReloadJSPlugin)
-	.enablePlugins()
-	.settings(
-		name := "example",
-		scalaJSUseMainModuleInitializer := true,
+  .enablePlugins(ScalaJSPlugin, LiveReloadJSPlugin)
+  .enablePlugins()
+  .settings(
+        name := "example",
+        scalaJSUseMainModuleInitializer := true,
         livereloadPublic := Some(baseDirectory.value / "public")
-	)
+  )
 	
 ```
 

@@ -1,4 +1,4 @@
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.13.2")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.15.0")
 
 lazy val liveReloadPlugin = RootProject(file("../.."))
 
