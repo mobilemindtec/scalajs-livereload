@@ -138,3 +138,18 @@ sbt:appjs> ~fastLinkJS
 ```
 
 - Change `Main.scala` and save to HTML reload.
+
+
+## Publish
+
+local
+
+```
+sbt:appjs> sbt publishM2
+```
+
+maven central
+
+```
+sbt sonatypeBundleRelease
+```

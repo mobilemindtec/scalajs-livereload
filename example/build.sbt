@@ -1,6 +1,6 @@
 
 ThisBuild / name := "example"
-ThisBuild / scalaVersion := "3.4.0"
+ThisBuild / scalaVersion := "3.6.2"
 
 lazy val app = (project in file("."))
 	.enablePlugins(ScalaJSPlugin, LiveReloadJSPlugin, CopyFullJSPlugin)

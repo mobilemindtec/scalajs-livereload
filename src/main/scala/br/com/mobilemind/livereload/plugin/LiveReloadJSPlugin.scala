@@ -47,6 +47,7 @@ object LiveReloadJSPlugin extends AutoPlugin {
     val livereloadServerPort = SettingKey[Option[Int]]("livereloadServerPort", "http server port")
     val livereloadExtensions = SettingKey[Option[List[String]]]("livereloadExtensions", "file extensions to watch")
     val liveRealoadUseEsbuild = SettingKey[Option[Boolean]]("liveRealoadUseEsbuild", "debug mode")
+    val liveRealoadUrl = SettingKey[Option[String]]("liveRealoadUrl", "reload url")
     val livereloadServe = taskKey[Unit]("start http server")
     val livereloadWatch = taskKey[Unit]("start watcher")
     val livereload = taskKey[Unit]("start live reload")
@@ -65,6 +66,7 @@ object LiveReloadJSPlugin extends AutoPlugin {
     livereloadDebug := None,
     livereloadExtensions := None,
     livereloadWatchPublic := None,
+    liveRealoadUrl := None,
     npmInstall := {
       val s: TaskStreams = streams.value
       val shell: Seq[String] = if (sys.props("os.name").contains("Windows")) Seq("cmd", "/c") else Seq("bash", "-c")
@@ -80,7 +82,7 @@ object LiveReloadJSPlugin extends AutoPlugin {
       val s = streams.value
       Server.start(
         CustomLogger(s.log),
-        ServerConfigs(livereloadServerPort.value, livereloadPublic.value))
+        ServerConfigs(livereloadServerPort.value, livereloadPublic.value, liveRealoadUrl.value))
     },
     livereloadWatch := {
       val targetName = s"${name.value}-fastopt"

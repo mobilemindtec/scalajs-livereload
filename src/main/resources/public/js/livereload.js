@@ -1,13 +1,23 @@
 
 class LiveReload{
     static start(args) {
+
+        var testUrl = "__RELOAD_URL__"
+        var reloadUrl = "__RELOAD_URL__"
+
+        if(!testUrl || testUrl.trim().length == 0)
+            testUrl = document.href
+
+        console.log("Live Reload: Use " + reloadUrl + " as reload URL")
+
         var args  = {
         	port:  __PORT__,
             debug: false,
             tryLimit: 20,
             startTimeout: 1000,
             retryTimeout: 300,
-            testUrl: document.href
+            testUrl: testUrl,
+            realoadUrl: reloadUrl
         }
 
         if(args.debug)
@@ -18,7 +28,7 @@ class LiveReload{
         let liveReload = new WebSocket(url)
 
         function checkServerIsUp(successCb, errorCb){
-            var xmlHttp = new XMLHttpRequest(args.testUrl);
+            var xmlHttp = new XMLHttpRequest();
             xmlHttp.onreadystatechange = function() {
                 if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
                     successCb()
@@ -26,23 +36,30 @@ class LiveReload{
                     errorCb()
                     //callback(xmlHttp.responseText);
             }
-            xmlHttp.open("GET", location.href, true); // true for asynchronous
+            xmlHttp.open("GET", args.testUrl, true); // true for asynchronous
             xmlHttp.send(null);
         }
 
         function pageReload(max){
 
-            if(max == 0){
+            if(max <= 0){
                 console.error("Live Reload: reload limit found")
                 return
             }
 
             checkServerIsUp(() => {
-                location.reload()
+
+                if(args.realoadUrl && args.realoadUrl.trim().length > 0)
+                    location.href = args.realoadUrl
+                else
+                    location.reload()
+
             }, () => {
-                setTimeout(() => {
-                    pageReload(max-1)
-                }, args.retryTimeout)
+                (function (i){
+                    setTimeout(() => {
+                        pageReload(i)
+                    }, args.retryTimeout)
+                })(max-1)
             })
         }
 
@@ -60,6 +77,7 @@ class LiveReload{
             }
             if (eventKey === "reload") {
                 liveReload.close()
+                console.log("Live Reload: reload")
                 setTimeout(() => {
                     pageReload(args.tryLimit)
                 }, args.startTimeout)

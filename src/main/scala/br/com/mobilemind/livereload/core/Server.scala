@@ -14,7 +14,9 @@ import scala.collection.mutable.ListBuffer
 import scala.util.parsing.input.StreamReader
 
 
-case class ServerConfigs(port: Option[Int]  = None, www: Option[File] = None)
+case class ServerConfigs(port: Option[Int]  = None,
+												 www: Option[File] = None,
+												 reloadUrl: Option[String] = None)
 
 class myStaticResources(path: String, headers: Seq[(String, String)]) extends
 	cask.staticResources(path, classOf[cask.staticResources].getClassLoader, headers)
@@ -68,7 +70,7 @@ object WsSession {
 	}
 }
 
-class AppController(dist: => Option[File])(implicit ctx: castor.Context,
+class AppController(dist: => Option[File], reloadUrl: Option[String])(implicit ctx: castor.Context,
 																					log: cask.Logger) extends cask.MainRoutes {
 
 	private def readIndexHtml(path: File): Option[String] = {
@@ -140,8 +142,11 @@ class AppController(dist: => Option[File])(implicit ctx: castor.Context,
 			val port = req.exchange.getHostPort
 			val content = buffer
 				.lines()
-				.map(l => l.replace("__PORT__", port.toString))
-				.toList.asScala.mkString("\n")
+				.toList
+				.asScala
+				.map(_.replace("__PORT__", port.toString))
+				.map(_.replace("__RELOAD_URL__", reloadUrl.getOrElse("")))
+				.mkString("\n")
 			cask.Response(content, 200, Seq("Content-Type" -> "text/javascript"))
 		}finally buffer.close()
 	}
@@ -159,8 +164,9 @@ object Server extends cask.Main {
 	private var configs: Option[ServerConfigs] = None
 
 	private def getDist = configs.getOrElse(ServerConfigs()).www
+	private def getReloadUrl = configs.getOrElse(ServerConfigs()).reloadUrl
 
-	val allRoutes: Seq[AppController] = Seq(new AppController(getDist))
+	def allRoutes: Seq[AppController] = Seq(new AppController(getDist, getReloadUrl))
 
 	def setLogger(l: CustomLogger): Unit = logger = Some(l)
 
